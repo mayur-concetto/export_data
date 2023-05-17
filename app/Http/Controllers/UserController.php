@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Session;
 class UserController extends Controller
 {
     
-    
     public function listView(Request $request){
       
         $files = new User;
@@ -60,7 +59,7 @@ class UserController extends Controller
                 }
                 else
                 { 
-                     User::firstOrCreate([  
+                    User::firstOrCreate([  
                         'order_id' => $data['order_id'],
                         'date' => $data['date'],
                         'description' => $data['description'],
@@ -75,4 +74,12 @@ class UserController extends Controller
         fclose($file);
         return redirect('/file-import');
     }
+
+    public function deleteAll(Request $request)  
+    {  
+        // echo "hello";die;
+        $ids = $request->ids;  
+        DB::table("movements")->whereIn('id',explode(",",$ids))->delete();  
+        return response()->json(['success'=>"Data Deleted successfully."]);  
+    }  
 }

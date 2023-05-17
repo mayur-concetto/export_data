@@ -9,12 +9,11 @@
 
 <script>
         $(document).ready(function() {
-         
-          var startDate;
-          var endDate;
+         var startDate;
+         var endDate;
 
-          $("#start_date").datepicker({
-       format: 'yyyy-mm-dd',
+        $("#start_date").datepicker({
+        format: 'yyyy-mm-dd',
             autoclose: true,
         }).on('changeDate', function (selected) {
           startDate = $('input[name=start_date]').val();
@@ -55,49 +54,53 @@
 @if(session()->has('message'))
       <p class="alert alert-success"> {{ session()->get('message') }}</p>
     @endif
+
+
+     
 <section class="intro">
   <div class="gradient-custom-1 h-100">
     <div class="mask d-flex align-items-center h-100">
       <div class="container">
       <form action="" id = "search" method="GET">
-      <!-- <input type="text" class=" daterange-cus" name = "start_date" placeholder="YYYY/MM/DD-YYYY/MM/DD" value=""> -->
-        <!-- <input type="text" id="datetime" readonly> -->
-   
-      <input type="text" name="start_date"  id = "start_date" class="">
-        <input type="text" name="end_date" id = "end_date" class="">
+      <input type="text" name="start_date"  id = "start_date" class="" placeholder="yyyy-mm-dd">
+        <input type="text" name="end_date" id = "end_date" class="" placeholder="yyyy-mm-dd">
 
         <input type="text" name="search" placeholder="Search...">
         <button type="submit">Search</button>
         <input type="reset" value="Reset">
-
   </form>
-
       <a href="{{ route('import') }}">
       <button type="submit" class="btn btn-primary">Import</button>
       </a>
+      <button style="margin-bottom: 10px" class="btn btn-primary delete_all" data-url="{{ route('delete') }}">Delete All Selected</button> 
       <div class="row justify-content-center">
         <div class="col-12">
             <div class="table-responsive bg-white">
               <table class="table mb-0" id="listing-data">
                 <thead>
-                
+                <th>
+                     
                     <th scope="col">Order ID</th>
                     <th scope="col">Date</th>
                     <th scope="col">Description</th>
                     <th scope="col">Client ID</th>
                     <th scope="col">Quantity</th>
                     <th scope="col">Price</th>
+                    <th scope="col">Delete</th>
                 </thead>
                 <tbody>
                 @foreach($files as $file)
                 <tr>
+                <td>
+                    <td><input type="checkbox" class="sub_chk" data-id="{{$file->id}}"></td>  
+                </td>
                     <th>{{ $file->order_id }}</th>
                     <td>{{ $file->date }}</td>
                     <td>{{ $file->description }}</td>
                     <td>{{ $file->client_id }}</td>
                     <td>{{ $file->quantity }}</td>
-                    <td>{{ $file->price }}</td>
-                  </tr>
+                    <td>{{ $file->price }}</td>                    
+                </tr>
                   @endforeach
                 </tbody>
               </table>
@@ -110,3 +113,58 @@
 </section>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+<script>
+  $(document).ready(function() {
+         
+    $('#master').on('click', function(e) {  
+        if($(this).is(':checked',true))    
+        {  
+           $(".sub_chk").prop('checked', true);    
+        } else {    
+           $(".sub_chk").prop('checked',false);    
+        }    
+    });  
+
+    $('.delete_all').on('click', function(e) {  
+       var allVals = [];    
+       $(".sub_chk:checked").each(function() {    
+          allVals.push($(this).attr('data-id'));  
+       });    
+
+        if(allVals.length <=0)    
+          {    
+            alert("Please select row.");    
+          }  else {    
+          var check = confirm("Are you sure you want to delete this row?");    
+          if(check == true){    
+          var join_selected_values = allVals.join(",");   
+          $.ajax({  
+             url: $(this).data('url'),  
+             type: 'get',  
+             headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},  
+             data: 'ids='+join_selected_values,  
+             success: function (data) {  
+                 if (data['success']) {  
+                     $(".sub_chk:checked").each(function() {    
+                         $(this).parents("tr").remove();  
+                     });  
+                     alert(data['success']);  
+                 } else if (data['error']) {  
+                     alert(data['error']);  
+                 } else {  
+                     alert('Whoops Something went wrong!!');  
+                 }  
+             },  
+             error: function (data) {  
+                 alert(data.responseText);  
+             }  
+         });  
+
+          $.each(allVals, function( index, value ) {  
+             $('table tr').filter("[data-row-id='" + value + "']").remove();  
+          });  
+      }    
+ }    
+});  
+});
+  </script>

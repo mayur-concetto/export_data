@@ -23,3 +23,5 @@ Route::get('/import-users',[UserController::class,'import'])->name('import.user'
 Route::get('/search',[UserController::class,'search'])->name('search');
 
 Route::get('/delete{id?}',[UserController::class,'deleteAll'])->name('delete');
+
+Route::get('/iteam{order_id}',[UserController::class,'iteam'])->name('iteam');

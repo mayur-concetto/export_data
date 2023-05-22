@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-
+use \App\Models\ItemTable;
 class User extends Authenticatable
 {
 
@@ -23,12 +23,17 @@ class User extends Authenticatable
     protected $fillable = [
         'order_id',
         'date',
-        'description',
-        'client_id',
+        'name',
         'quantity',
         'price',
     ];
-    
-    
-   
+    public function order_item()
+    {
+
+        return $this->hasMany(ItemTable::class,'order_id','order_id');
+    }
+
+
+
+
 }
